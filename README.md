@@ -11,6 +11,7 @@ Add to `cypress.json` (use path in case if you don't are not running cypress fro
 
 ```
 {
+  "reporter": "mocha-github-actions-reporter",
   "reporterOptions": {
     "filenamePrefix": "frontend"
   }
