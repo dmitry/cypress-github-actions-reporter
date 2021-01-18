@@ -3,15 +3,15 @@ const { issueCommand } = require('@actions/core/lib/command');
 const mocha = require('mocha');
 
 // From https://github.com/findmypast-oss/mocha-json-streamier-reporter/blob/master/lib/parse-stack-trace.js
-function extractModuleLineAndColumn(stackTrace) {
-    let matches = /^\s*at Context.* \(([^\(\)]+):([0-9]+):([0-9]+)\)/gm.exec(stackTrace);
+function extractModuleLineAndColumn(stackTrace, options) {
+    let matches = /^\s*at Context.* \(.+tests\?p=([^\(\)]+):([0-9]+):([0-9]+)\)/gm.exec(stackTrace);
 
     if (matches === null) {
         return {};
     }
 
     return {
-        file: matches[1],
+        file: options.filenamePrefix + '/' + matches[1],
         line: parseIntOrUndefined(matches[2]),
         column: parseIntOrUndefined(matches[3])
     };
@@ -42,7 +42,7 @@ function GithubActionsReporter(runner, options) {
 
             for (const test of failures) {
                 const errMessage = test.err.message;
-                const moduleLineColumn = extractModuleLineAndColumn(test.err.stack);
+                const moduleLineColumn = extractModuleLineAndColumn(test.err.stack, options.reporterOptions);
 
                 issueCommand('error', {
                     file: moduleLineColumn.file,
